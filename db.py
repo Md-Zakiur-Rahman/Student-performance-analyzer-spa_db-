@@ -3,6 +3,7 @@ import hashlib
 import getpass
 import sys
 import os
+from pathlib import Path
 
 # ── GLOBAL DB CONFIG ──
 DB_CONFIG = {
@@ -110,3 +111,35 @@ def test_connection():
         conn.close()
     except Exception as e:
         print("❌ Connection failed:", e)
+
+
+def ensure_db_setup(sql_path: str | None = None) -> None:
+    """Ensure the database and tables exist by running the PRN_setup.sql script.
+
+    Uses the configured `DB_CONFIG` credentials (prompts if not set). Connects
+    without a database to run `CREATE DATABASE` and table creation statements.
+    """
+    init_db()
+
+    cfg = DB_CONFIG.copy()
+    cfg.pop("database", None)
+
+    if sql_path is None:
+        sql_path = Path(__file__).resolve().parent / "PRN_setup.sql"
+    else:
+        sql_path = Path(sql_path)
+
+    if not sql_path.exists():
+        return
+
+    try:
+        conn = mysql.connector.connect(**cfg)
+        cur = conn.cursor()
+        sql = sql_path.read_text(encoding="utf-8")
+        for result in cur.execute(sql, multi=True):
+            pass
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        raise RuntimeError(f"Failed to ensure DB setup: {e}") from e

@@ -87,6 +87,22 @@ It also creates these views:
 - `v_audit_recent`
 - `v_student_portal`
 
+## Executable Behavior
+
+- `PRN_spa.exe` (and running `python main.py`) will attempt to ensure the database and tables exist on startup by executing `PRN_setup.sql` automatically.
+- The startup routine uses the `SPA_DB_PASSWORD` environment variable for the MySQL root password if set. If `SPA_DB_PASSWORD` is not set the app will prompt for the MySQL root password (note: a console prompt appears when running from source).
+- For headless or installer scenarios, set the password first:
+
+```powershell
+setx SPA_DB_PASSWORD "your_mysql_root_password"
+```
+
+- If automatic setup isn't possible, you can run the SQL manually:
+
+```sql
+SOURCE D:/spa_db/PRN_setup.sql;
+```
+
 ## Project Files
 
 - `main.py` starts the modular PyQt6 desktop app.
@@ -126,3 +142,13 @@ Student:
 - Keep `PRN_setup.sql` with the project because it reproduces the database schema on another machine.
 - `__pycache__` folders are generated automatically by Python and are ignored.
 - `PRN_spa.exe` may require MySQL client libraries on another Windows machine.
+
+### Executable DB setup behavior
+
+- When you run the windowed executable `PRN_spa.exe`, the application will prompt with a GUI password dialog to obtain the MySQL root password and then run `PRN_setup.sql` to create the database and tables if needed.
+- If you build a console exe or run from source, the app will use the `SPA_DB_PASSWORD` environment variable or fall back to a console prompt.
+- Rebuild the executable after source changes so the new startup behavior is included (example using PyInstaller):
+
+```powershell
+pyinstaller --onefile --add-data "PRN_setup.sql;." --name PRN_spa main.py
+```
