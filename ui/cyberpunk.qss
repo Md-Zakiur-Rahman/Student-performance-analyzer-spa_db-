@@ -1,0 +1,78 @@
+* {
+    color: #00FF66;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    letter-spacing: 0px;
+}
+
+QMainWindow, QWidget {
+    background: #020702;
+}
+
+QFrame#leftPanel, QFrame#rightPanel, QFrame#profileFrame, QFrame#commandFrame,
+QFrame#loginPanel, QFrame#headerFrame {
+    background: #041404;
+    border: 2px solid #00FF66;
+}
+
+QLabel#appTitle, QLabel#profileTitle, QLabel#gpaLabel {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+QLineEdit, QComboBox, QTextEdit, QTableWidget, QListWidget {
+    background: #020702;
+    border: 1px solid #00FF66;
+    selection-background-color: #00FF66;
+    selection-color: #020702;
+}
+
+QTextEdit {
+    line-height: 130%;
+}
+
+QPushButton {
+    background: #041404;
+    border: 1px solid #00FF66;
+    padding: 8px 14px;
+    font-weight: 700;
+}
+
+QPushButton:hover, QTabBar::tab:selected {
+    background: #00FF66;
+    color: #020702;
+}
+
+QTabWidget::pane {
+    border: 2px solid #00FF66;
+    background: #041404;
+}
+
+QTabBar::tab {
+    background: #041404;
+    border: 1px solid #00FF66;
+    padding: 8px 22px;
+    min-width: 90px;
+}
+
+QHeaderView::section {
+    background: #041404;
+    border: 1px solid #00FF66;
+    padding: 6px;
+    font-weight: 700;
+}
+
+QTableWidget::item, QListWidget::item {
+    padding: 5px;
+}
+
+QScrollBar:vertical, QScrollBar:horizontal {
+    background: #020702;
+    border: 1px solid #00FF66;
+    width: 14px;
+    height: 14px;
+}
+
+QScrollBar::handle {
+    background: #00FF66;
+}

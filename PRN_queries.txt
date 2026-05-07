@@ -1,0 +1,80 @@
+-- Authenticates an active user by username so normal accounts can log in.
+SELECT * FROM users WHERE username = %s AND password_hash = %s AND is_active = TRUE;
+
+-- Authenticates an active student by PRN so students can log in without remembering a username.
+SELECT u.* FROM users u JOIN students s ON s.user_id = u.id WHERE s.prn = %s AND u.password_hash = %s AND u.is_active = TRUE;
+
+-- Finds a linked student profile for the logged-in user.
+SELECT id FROM students WHERE user_id = %s;
+
+-- Writes an audit event so important actions are traceable.
+INSERT INTO audit_log(user_id, action, details) VALUES (%s, %s, %s);
+
+-- Lists users for the admin dashboard without exposing password hashes.
+SELECT username, role, is_active, created_at FROM users ORDER BY role, username;
+
+-- Lists all subjects for admin and faculty controls.
+SELECT name FROM subjects ORDER BY name;
+
+-- Shows recent audit activity for the admin audit tab.
+SELECT COALESCE(u.username, 'SYSTEM'), a.action, a.details, a.timestamp FROM audit_log a LEFT JOIN users u ON u.id = a.user_id ORDER BY a.timestamp DESC LIMIT %s;
+
+-- Adds a new subject to the system.
+INSERT INTO subjects(name) VALUES (%s);
+
+-- Counts existing student users so the admin can auto-generate the next student username.
+SELECT COUNT(*) FROM users WHERE role='student';
+
+-- Creates a new application user with hashed password and role.
+INSERT INTO users(username, password_hash, role) VALUES (%s, %s, %s);
+
+-- Creates the student profile linked to the generated user account.
+INSERT INTO students(name, department, prn, user_id, marks) VALUES (%s, %s, %s, %s, 0);
+
+-- Assigns a subject to a faculty user so faculty access is restricted.
+INSERT INTO faculty_subjects(faculty_id, subject_name) VALUES (%s, %s);
+
+-- Reads a user's current active state before toggling it.
+SELECT is_active FROM users WHERE username=%s;
+
+-- Enables or disables a user account.
+UPDATE users SET is_active=%s WHERE username=%s;
+
+-- Loads subjects assigned to the logged-in faculty user.
+SELECT subject_name FROM faculty_subjects WHERE faculty_id=%s ORDER BY subject_name;
+
+-- Finds a student by PRN for faculty search.
+SELECT id, name, department, prn FROM students WHERE prn=%s;
+
+-- Loads all marks for one student for the marks table.
+SELECT subject, marks FROM student_marks WHERE student_id=%s ORDER BY subject;
+
+-- Loads every student and their marks for a selected subject for faculty bulk update.
+SELECT s.id, s.name, s.prn, sm.marks FROM students s LEFT JOIN student_marks sm ON sm.student_id = s.id AND sm.subject = %s ORDER BY s.name;
+
+-- Checks if a student already has marks for a subject before insert/update.
+SELECT id FROM student_marks WHERE student_id=%s AND subject=%s;
+
+-- Updates existing marks for a student in a subject.
+UPDATE student_marks SET marks=%s WHERE student_id=%s AND subject=%s;
+
+-- Inserts new marks for a student in a subject.
+INSERT INTO student_marks(student_id, subject, marks) VALUES (%s, %s, %s);
+
+-- Removes older view names so SHOW TABLES displays only the required view names.
+DROP VIEW IF EXISTS vw_student_performance;
+
+-- Removes older GPA view name before creating the required analytics view.
+DROP VIEW IF EXISTS vw_student_gpa;
+
+-- Removes older faculty access view name before creating the required views.
+DROP VIEW IF EXISTS vw_faculty_subject_access;
+
+-- Creates the student portal view used for student-facing marks display.
+CREATE OR REPLACE VIEW v_student_portal AS SELECT s.id AS student_id, s.prn, s.name, s.department, sm.subject, sm.marks FROM students s LEFT JOIN student_marks sm ON sm.student_id = s.id;
+
+-- Creates the analytics summary view used for dashboard totals and grade bands.
+CREATE OR REPLACE VIEW v_analytics_summary AS SELECT COUNT(DISTINCT s.id) AS total_students, ROUND(AVG(sm.marks), 2) AS average_marks, MAX(sm.marks) AS highest_marks, MIN(sm.marks) AS lowest_marks, SUM(CASE WHEN sm.marks >= 90 THEN 1 ELSE 0 END) AS grade_a_count, SUM(CASE WHEN sm.marks >= 75 AND sm.marks < 90 THEN 1 ELSE 0 END) AS grade_b_count, SUM(CASE WHEN sm.marks >= 60 AND sm.marks < 75 THEN 1 ELSE 0 END) AS grade_c_count, SUM(CASE WHEN sm.marks >= 40 AND sm.marks < 60 THEN 1 ELSE 0 END) AS grade_d_count, SUM(CASE WHEN sm.marks < 40 THEN 1 ELSE 0 END) AS grade_f_count FROM students s LEFT JOIN student_marks sm ON sm.student_id = s.id;
+
+-- Creates the recent audit view used to review login and data-changing activity.
+CREATE OR REPLACE VIEW v_audit_recent AS SELECT a.id, COALESCE(u.username, 'SYSTEM') AS username, a.action, a.details, a.timestamp FROM audit_log a LEFT JOIN users u ON u.id = a.user_id ORDER BY a.timestamp DESC;
