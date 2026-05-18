@@ -2,7 +2,7 @@
 <ui version="4.0">
  <class>AdminWindow</class>
  <widget class="QMainWindow" name="AdminWindow">
-  <property name="geometry"><rect><x>0</x><y>0</y><width>1400</width><height>850</height></rect></property>
+  <property name="geometry"><rect><x>0</x><y>0</y><width>1200</width><height>800</height></rect></property>
   <property name="windowTitle"><string>SPA ADMIN DASHBOARD</string></property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="mainLayout">
@@ -10,7 +10,7 @@
      <widget class="QFrame" name="headerFrame">
       <layout class="QHBoxLayout" name="headerLayout">
        <item><widget class="QLabel" name="appTitle"><property name="text"><string>ADMIN CONTROL PANEL</string></property></widget></item>
-       <item><spacer name="topSpacer"><property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer></item>
+       <item><spacer name="topSpacer"><property name="orientation"><enum>Qt::Orientation::Horizontal</enum></property><property name="sizeHint"><size><width>40</width><height>20</height></size></property></spacer></item>
        <item><widget class="QPushButton" name="refreshButton"><property name="text"><string>REFRESH</string></property></widget></item>
        <item><widget class="QPushButton" name="logoutButton"><property name="text"><string>LOGOUT</string></property></widget></item>
       </layout>
@@ -23,24 +23,61 @@
         <layout class="QVBoxLayout" name="leftLayout">
          <item>
           <widget class="QTabWidget" name="tabs">
-           <widget class="QWidget" name="usersTab"><attribute name="title"><string>USERS</string></attribute><layout class="QVBoxLayout" name="usersLayout"><item><widget class="QTableWidget" name="usersTable"/></item></layout></widget>
-           <widget class="QWidget" name="subjectsTab"><attribute name="title"><string>SUBJECTS</string></attribute><layout class="QVBoxLayout" name="subjectsLayout"><item><widget class="QListWidget" name="subjectsList"/></item></layout></widget>
-           <widget class="QWidget" name="auditTab"><attribute name="title"><string>AUDIT</string></attribute><layout class="QVBoxLayout" name="auditLayout"><item><widget class="QTableWidget" name="auditTable"/></item></layout></widget>
+           <widget class="QWidget" name="usersTab">
+            <attribute name="title"><string>USERS</string></attribute>
+            <layout class="QVBoxLayout" name="usersLayout">
+             <item><widget class="QTableWidget" name="usersTable"/></item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="subjectsTab">
+            <attribute name="title"><string>SUBJECTS</string></attribute>
+            <layout class="QVBoxLayout" name="subjectsLayout">
+             <item><widget class="QListWidget" name="subjectsList"/></item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="auditTab">
+            <attribute name="title"><string>AUDIT</string></attribute>
+            <layout class="QVBoxLayout" name="auditLayout">
+             <item><widget class="QTableWidget" name="auditTable"/></item>
+            </layout>
+           </widget>
           </widget>
          </item>
          <item><widget class="QTextEdit" name="terminalOutput"><property name="readOnly"><bool>true</bool></property><property name="plainText"><string>ADMIN NODE ONLINE</string></property></widget></item>
-         <item><widget class="QFrame" name="commandFrame"><layout class="QHBoxLayout" name="commandLayout"><item><widget class="QLineEdit" name="commandInput"><property name="placeholderText"><string>ENTER COMMAND: users / subjects / audit / refresh</string></property></widget></item><item><widget class="QPushButton" name="executeButton"><property name="text"><string>EXECUTE</string></property></widget></item></layout></widget></item>
         </layout>
        </widget>
       </item>
       <item stretch="1">
        <widget class="QFrame" name="rightPanel">
         <layout class="QVBoxLayout" name="rightLayout">
-         <item><widget class="QFrame" name="profileFrame"><layout class="QVBoxLayout" name="profileLayout"><item><widget class="QLabel" name="profileTitle"><property name="text"><string>PROFILE INFO</string></property></widget></item><item><widget class="QLabel" name="usernameLabel"><property name="text"><string>USERNAME:</string></property></widget></item><item><widget class="QLabel" name="roleLabel"><property name="text"><string>ROLE:</string></property></widget></item><item><widget class="QLabel" name="statusLabel"><property name="text"><string>STATUS: ONLINE</string></property></widget></item></layout></widget></item>
-         <item><widget class="QPushButton" name="createUserButton"><property name="text"><string>CREATE USER</string></property></widget></item>
-         <item><widget class="QPushButton" name="addSubjectButton"><property name="text"><string>ADD SUBJECT</string></property></widget></item>
-         <item><widget class="QPushButton" name="toggleUserButton"><property name="text"><string>TOGGLE USER</string></property></widget></item>
-         <item><spacer name="rightSpacer"><property name="orientation"><enum>Qt::Orientation::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>320</height></size></property></spacer></item>
+         <item>
+          <widget class="QFrame" name="profileFrame">
+           <layout class="QVBoxLayout" name="profileLayout">
+            <item><widget class="QLabel" name="profileTitle"><property name="text"><string>ADMIN PROFILE</string></property></widget></item>
+            <item><widget class="QLabel" name="usernameLabel"><property name="text"><string>USERNAME: admin</string></property></widget></item>
+            <item><widget class="QLabel" name="roleLabel"><property name="text"><string>ROLE: ADMIN</string></property></widget></item>
+            <item><widget class="QLabel" name="statusLabel"><property name="text"><string>STATUS: ONLINE</string></property></widget></item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="createUserButton"><property name="text"><string>CREATE USER</string></property></widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="addSubjectButton"><property name="text"><string>ADD SUBJECT</string></property></widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="toggleUserButton"><property name="text"><string>TOGGLE USER</string></property></widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="commandInput"><property name="placeholderText"><string>COMMAND</string></property></widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="executeButton"><property name="text"><string>EXECUTE</string></property></widget>
+         </item>
+         <item>
+          <spacer name="rightSpacer"><property name="orientation"><enum>Qt::Orientation::Vertical</enum></property><property name="sizeHint"><size><width>20</width><height>200</height></size></property></spacer>
+         </item>
         </layout>
        </widget>
       </item>

@@ -49,7 +49,7 @@ SELECT id, name, department, prn FROM students WHERE prn=%s;
 -- Loads all marks for one student for the marks table.
 SELECT subject, marks FROM student_marks WHERE student_id=%s ORDER BY subject;
 
--- Loads every student and their marks for a selected subject for faculty bulk update.
+-- Loads every student and their marks for one selected subject so faculty can edit marks per student.
 SELECT s.id, s.name, s.prn, sm.marks FROM students s LEFT JOIN student_marks sm ON sm.student_id = s.id AND sm.subject = %s ORDER BY s.name;
 
 -- Checks if a student already has marks for a subject before insert/update.

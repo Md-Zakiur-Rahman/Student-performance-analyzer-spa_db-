@@ -92,53 +92,18 @@ CREATE TABLE IF NOT EXISTS audit_log (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE IF NOT EXISTS app_settings (
+    setting_key VARCHAR(100) PRIMARY KEY,
+    setting_value VARCHAR(255) NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_0900_ai_ci;
+
 INSERT INTO users(username, password_hash, role)
 VALUES
-('admin', SHA2('adminpass', 256), 'admin'),
-('faculty1', SHA2('faculty1', 256), 'faculty'),
-('stud1', SHA2('stud1', 256), 'student'),
-('stud2', SHA2('stud2', 256), 'student')
+('admin', SHA2('adminpass', 256), 'admin')
 ON DUPLICATE KEY UPDATE username = VALUES(username);
-
-INSERT INTO subjects(name)
-VALUES ('DBMS'), ('Python'), ('Java'), ('Mathematics')
-ON DUPLICATE KEY UPDATE name = VALUES(name);
-
-INSERT INTO students(name, department, prn, user_id, marks)
-SELECT 'Aarav Sharma', 'Computer Engineering', 'PRN001', u.id, 0
-FROM users u
-WHERE u.username = 'stud1'
-ON DUPLICATE KEY UPDATE name = VALUES(name), department = VALUES(department);
-
-INSERT INTO students(name, department, prn, user_id, marks)
-SELECT 'Meera Patil', 'Computer Engineering', 'PRN002', u.id, 0
-FROM users u
-WHERE u.username = 'stud2'
-ON DUPLICATE KEY UPDATE name = VALUES(name), department = VALUES(department);
-
-INSERT INTO faculty_subjects(faculty_id, subject_name)
-SELECT u.id, 'DBMS'
-FROM users u
-WHERE u.username = 'faculty1'
-ON DUPLICATE KEY UPDATE subject_name = VALUES(subject_name);
-
-INSERT INTO faculty_subjects(faculty_id, subject_name)
-SELECT u.id, 'Python'
-FROM users u
-WHERE u.username = 'faculty1'
-ON DUPLICATE KEY UPDATE subject_name = VALUES(subject_name);
-
-INSERT INTO student_marks(student_id, subject, marks)
-SELECT s.id, 'DBMS', 88 FROM students s WHERE s.prn = 'PRN001'
-ON DUPLICATE KEY UPDATE marks = VALUES(marks);
-
-INSERT INTO student_marks(student_id, subject, marks)
-SELECT s.id, 'Python', 91 FROM students s WHERE s.prn = 'PRN001'
-ON DUPLICATE KEY UPDATE marks = VALUES(marks);
-
-INSERT INTO student_marks(student_id, subject, marks)
-SELECT s.id, 'DBMS', 76 FROM students s WHERE s.prn = 'PRN002'
-ON DUPLICATE KEY UPDATE marks = VALUES(marks);
 
 DROP VIEW IF EXISTS vw_student_performance;
 DROP VIEW IF EXISTS vw_student_gpa;

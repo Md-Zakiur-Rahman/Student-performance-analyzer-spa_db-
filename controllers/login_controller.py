@@ -1,34 +1,28 @@
-from pathlib import Path
-
 from PyQt6 import uic
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
 
+from app_paths import resource_path
 from db import AuthService
-
-
-BASE_DIR = Path(__file__).resolve().parents[1]
 
 
 class LoginController(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(BASE_DIR / "ui" / "login.ui", self)
+        uic.loadUi(resource_path("ui", "login.ui"), self)
         self.dashboard = None
         self.loginButton.clicked.connect(self.login)
         self.passwordInput.returnPressed.connect(self.login)
-        self.mysqlPasswordInput.returnPressed.connect(self.login)
 
     def login(self) -> None:
         identifier = self.identifierInput.text().strip()
         password = self.passwordInput.text()
-        mysql_password = self.mysqlPasswordInput.text()
 
-        if not identifier or not password or not mysql_password:
-            QMessageBox.warning(self, "Input Required", "Username/PRN, password, and MySQL password are required.")
+        if not identifier or not password:
+            QMessageBox.warning(self, "Input Required", "Username/PRN and password are required.")
             return
 
         try:
-            user = AuthService.authenticate(identifier, password, mysql_password)
+            user = AuthService.authenticate(identifier, password)
         except Exception as exc:
             QMessageBox.critical(self, "Database Error", str(exc))
             return

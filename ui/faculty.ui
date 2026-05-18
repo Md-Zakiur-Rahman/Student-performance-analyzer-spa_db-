@@ -57,8 +57,8 @@ SUBJECT ACCESS IS RESTRICTED</string></property></widget></item>
          <item><widget class="QComboBox" name="subjectCombo"/></item>
          <item><widget class="QLineEdit" name="marksInput"><property name="placeholderText"><string>MARKS 0-100</string></property></widget></item>
          <item><widget class="QPushButton" name="saveMarkButton"><property name="text"><string>SAVE MARK</string></property></widget></item>
-         <item><widget class="QPushButton" name="bulkUpdateButton"><property name="text"><string>BULK UPDATE TABLE</string></property></widget></item>
-         <item><widget class="QLabel" name="rosterHintLabel"><property name="wordWrap"><bool>true</bool></property><property name="text"><string>Selected subject roster shows student names and marks. Edit the Marks cells, then bulk update.</string></property></widget></item>
+         <item><widget class="QPushButton" name="bulkUpdateButton"><property name="text"><string>SAVE SUBJECT MARKS</string></property></widget></item>
+         <item><widget class="QLabel" name="rosterHintLabel"><property name="wordWrap"><bool>true</bool></property><property name="text"><string>Select one subject. The roster shows every student for that subject. Edit each Marks cell, then save.</string></property></widget></item>
          <item><spacer name="rightSpacer"><property name="orientation"><enum>Qt::Orientation::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>260</height></size></property></spacer></item>
         </layout>
        </widget>

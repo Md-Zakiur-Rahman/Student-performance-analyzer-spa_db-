@@ -1,162 +1,185 @@
-﻿# Student Performance Analyzer
+# Student Performance Analyzer
 
-Student Performance Analyzer is a desktop application for managing and viewing academic performance data. It is built with Python, PyQt6, and MySQL, with a cyberpunk-inspired dark neon interface.
+A desktop application for managing student performance records with role-based access for administrators, faculty, and students. The app is built with Python, PyQt6, and MySQL, and uses a modular controller/service structure with Qt Designer UI files.
 
-The application supports role-based access for Admin, Faculty, and Student users. It includes login by username or PRN, student and subject management, faculty subject restrictions, subject-wise marks, GPA calculation, CSV export, and audit logging.
+## Highlights
+
+- Role-based dashboards for Admin, Faculty, and Student users.
+- Automatic database setup from `PRN_setup.sql` when the database is missing.
+- Login by username or student PRN.
+- Admin user management for students, faculty, and admins.
+- Faculty subject assignment with a multi-select subject picker.
+- Faculty mark entry by assigned subject: select one subject, view all students, edit marks per student, then save.
+- Analytics dashboard with summary stats, grade distribution, department stats, department leaderboard, subject grades, and pass/fail status.
+- CSV exports for student reports and high performers.
+- Audit logging for important administrative and academic actions.
 
 ## Tech Stack
 
 - Python 3.14
 - PyQt6
 - MySQL
+- mysql-connector-python
+- PyInstaller
 - Qt Designer `.ui` files
 - QSS stylesheet
-- MVC-style controller structure
 
 ## Project Structure
 
 ```text
 spa_db/
-├── main.py
-├── db.py
-├── admin.py
-├── faculty.py
-├── std.py
-├── README.md
-│
+├── main.py                     # Application entry point
+├── db.py                       # Database connection, setup, authentication, audit helpers
+├── academic.py                 # Shared academic reports and student/marks operations
+├── admin.py                    # Admin service operations
+├── faculty.py                  # Faculty service operations
+├── std.py                      # Student service operations
+├── PRN_setup.sql               # Database schema and startup SQL
+├── PRN_queries.txt             # Query reference
+├── PRN_spa.spec                # PyInstaller build specification
+├── requirements.txt
 ├── controllers/
 │   ├── login_controller.py
 │   ├── admin_controller.py
 │   ├── faculty_controller.py
-│   ├── student_controller.py
-│   └── __init__.py
-│
-├── ui/
-│   ├── login.ui
-│   ├── admin.ui
-│   ├── faculty.ui
-│   ├── student.ui
-│   └── cyberpunk.qss
-│
-├── PRN_analyzer.py
-├── PRN_setup.sql
-├── PRN_queries.txt
-└── PRN_spa.exe
+│   └── student_controller.py
+└── ui/
+    ├── login.ui
+    ├── admin.ui
+    ├── faculty.ui
+    ├── student.ui
+    └── cyberpunk.qss
 ```
 
-## Running The App
+## Running From Source
 
-Run the modular PyQt6 application from source:
+Install dependencies:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Run the app:
 
 ```powershell
 python main.py
 ```
 
-Or run the Windows executable:
+The login screen only asks for application credentials. MySQL setup credentials are handled during startup with `SPA_DB_PASSWORD` or a one-time setup dialog if the database needs to be created.
+
+## Running The Executable
+
+Use the root executable:
 
 ```powershell
 .\PRN_spa.exe
 ```
 
-The executable is located at the project root: `PRN_spa.exe`.
+Fresh PyInstaller builds are generated in:
 
-Login accepts either username or PRN. The MySQL password is entered on the login screen so the app can connect to the local database.
+```text
+dist\PRN_spa.exe
+```
 
 ## Database Setup
 
-Run `PRN_setup.sql` in MySQL to create the database, tables, constraints, sample data, views, and role-based MySQL users.
+The app automatically checks whether `spa_db` exists. If it is missing, it runs `PRN_setup.sql` to create the database, tables, constraints, views, and MySQL application users.
 
-Example:
-
-```sql
-SOURCE D:/spa_db/PRN_setup.sql;
-```
-
-The setup script creates these base tables:
-
-- `users`
-- `students`
-- `subjects`
-- `student_marks`
-- `faculty_subjects`
-- `audit_log`
-
-It also creates these views:
-
-- `v_analytics_summary`
-- `v_audit_recent`
-- `v_student_portal`
-
-## Executable Behavior
-
-- `PRN_spa.exe` (and running `python main.py`) will attempt to ensure the database and tables exist on startup by executing `PRN_setup.sql` automatically.
-- The startup routine uses the `SPA_DB_PASSWORD` environment variable for the MySQL root password if set. If `SPA_DB_PASSWORD` is not set the app will prompt for the MySQL root password (note: a console prompt appears when running from source).
-- For headless or installer scenarios, set the password first:
+For unattended setup, set the root password before launching:
 
 ```powershell
 setx SPA_DB_PASSWORD "your_mysql_root_password"
 ```
 
-- If automatic setup isn't possible, you can run the SQL manually:
+Manual setup is also supported:
 
 ```sql
 SOURCE D:/spa_db/PRN_setup.sql;
 ```
 
-## Project Files
+The setup script creates only the default admin account. It does not seed sample subjects, students, faculty, or marks.
 
-- `main.py` starts the modular PyQt6 desktop app.
-- `db.py` handles database connection, password hashing, login authentication, and audit logging.
-- `admin.py`, `faculty.py`, and `std.py` contain role-specific backend logic.
-- `controllers/` connects the UI screens to backend logic.
-- `ui/` contains Qt Designer layouts and the cyberpunk QSS theme.
-- `PRN_analyzer.py` is a standalone single-file version of the application.
-- `PRN_queries.txt` lists the SQL queries used by the project with short explanations.
-- `PRN_spa.exe` is the Windows executable build.
+Default admin:
 
-## Roles
+```text
+username: admin
+password: adminpass
+```
 
-Admin:
-- View users, subjects, and audit log
-- Create users
-- Add subjects
-- Toggle user active/disabled status
-- Creating a `student` user also creates the linked row in `students` with name, department, and PRN.
-- Creating a `faculty` user assigns selected subjects through `faculty_subjects`.
+## Role Capabilities
 
-Faculty:
-- View assigned subjects
-- Search students by PRN
-- Update individual marks
-- View subject-wise student roster
-- Bulk update marks for assigned subjects
-- Faculty dashboards only load subjects assigned to that faculty account, so marks updates are restricted by `faculty_subjects`.
+### Admin
 
-Student:
-- View subject-wise marks
-- View GPA
-- Export marks report as CSV
+- Manage users: create, edit, activate/deactivate, and delete users.
+- Manage subjects: add, edit, and delete subjects.
+- Create student users with linked student profiles.
+- Create faculty users and assign subjects using a selector.
+- View and search students by department.
+- View analytics, top performers, department leaderboard, and audit log.
+- Add bonus marks by department, capped at 100.
+- Export high performers above the overall average to a timestamped CSV.
+- Create MySQL application users.
+
+### Faculty
+
+- View assigned subjects.
+- Search students by PRN.
+- Enter marks for one selected subject across all students.
+- Save subject marks from an editable roster table.
+- View students, analytics, leaderboard, and department reports.
+- Add bonus marks by department, capped at 100.
+- Export high performers to timestamped CSV.
+
+### Student
+
+- View own subject-wise marks.
+- View GPA/average.
+- View analytics and leaderboard.
+- Export own marks report to CSV.
+
+## Analytics
+
+The analytics dashboard includes:
+
+- Total students, average marks, highest marks, and lowest marks.
+- Grade distribution using `CASE` inside `SUM()`:
+  - A: `>= 90`
+  - B: `75-89`
+  - C: `60-74`
+  - D: `40-59`
+  - F: `< 40`
+- Department-wise average, highest, and lowest marks using `GROUP BY`.
+- Top 3 performers using `ORDER BY ... LIMIT 3`.
+- Department leaderboard ranked by average marks.
+- Subject-wise grade and pass/fail status.
+- Marks distribution report by grade band.
+
+## Building The Executable
+
+Rebuild the Windows executable with:
+
+```powershell
+python -m PyInstaller --clean --noconfirm PRN_spa.spec
+```
+
+Then copy the generated executable if needed:
+
+```powershell
+Copy-Item .\dist\PRN_spa.exe .\PRN_spa.exe -Force
+```
+
+The spec file bundles `PRN_setup.sql` and the `ui/` folder, excludes the optional native MySQL extension, and builds a windowed app without a console.
 
 ## Notes
 
-- Keep `PRN_setup.sql` with the project because it reproduces the database schema on another machine.
-- `__pycache__` folders are generated automatically by Python and are ignored.
-- `PRN_spa.exe` may require MySQL client libraries on another Windows machine.
+- The app does not activate or run `.venv` automatically.
+- `build/`, `dist/`, `.venv/`, and `__pycache__/` are local generated folders.
+- Keep `PRN_setup.sql` with the project because the executable uses it for first-run database setup.
 
-## Default Accounts
+## Developer Notes (recent)
 
-- The setup script creates a default admin account for initial access:
-	- **username:** `admin`
-	- **password:** `adminpass`
+- Date: 2026-05-18
+- Resolved a corrupted UI file issue in `ui/admin.ui` that caused an XML parse error on startup. The file was replaced with a well-formed Qt Designer `.ui` and missing widgets expected by `AdminController` were restored (e.g. `addSubjectButton`, `createUserButton`, `toggleUserButton`, `commandInput`, `executeButton`, `auditTable`).
+- Verification: `python main.py` was run locally and no UI parse exception occurred; the Admin controller initializes without the earlier crash.
+- If you hit UI-related errors, check `ui/admin.ui` and ensure widget names match those referenced in `controllers/admin_controller.py`.
 
-	Use this admin account to create subjects, create additional users (faculty/student), and configure the system. Change the admin password after first login using the mysql client command line.
-
-### Executable DB setup behavior
-
-- When you run the windowed executable `PRN_spa.exe`, the application will prompt with a GUI password dialog to obtain the MySQL root password and then run `PRN_setup.sql` to create the database and tables if needed.
-- If you build a console exe or run from source, the app will use the `SPA_DB_PASSWORD` environment variable or fall back to a console prompt.
-- Rebuild the executable after source changes so the new startup behavior is included (example using PyInstaller):
-
-```powershell
-pyinstaller --onefile --add-data "PRN_setup.sql;." --name PRN_spa main.py
-```

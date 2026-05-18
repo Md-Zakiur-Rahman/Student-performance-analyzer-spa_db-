@@ -1,9 +1,11 @@
 import csv
 import hashlib
+import os
 import sys
 from pathlib import Path
 
 import mysql.connector
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -29,7 +31,7 @@ from PyQt6.QtWidgets import (
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "",
+    "password": os.getenv("SPA_DB_PASSWORD"),
     "database": "spa_db",
 }
 
@@ -69,8 +71,7 @@ def log_audit(user_id, action: str, details: str = "") -> None:
         pass
 
 
-def authenticate(identifier: str, password: str, mysql_password: str) -> dict | None:
-    DB_CONFIG["password"] = mysql_password
+def authenticate(identifier: str, password: str) -> dict | None:
     conn = get_connection()
     try:
         cur = conn.cursor(dictionary=True)
@@ -165,14 +166,10 @@ class LoginWindow(BaseWindow):
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.password.setPlaceholderText("PASSWORD")
-        self.mysql_password = QLineEdit()
-        self.mysql_password.setEchoMode(QLineEdit.EchoMode.Password)
-        self.mysql_password.setPlaceholderText("MYSQL ROOT PASSWORD")
         login_btn = QPushButton("LOGIN")
         login_btn.clicked.connect(self.login)
         right_layout.addWidget(self.identifier)
         right_layout.addWidget(self.password)
-        right_layout.addWidget(self.mysql_password)
         right_layout.addWidget(login_btn)
         right_layout.addStretch()
         right_layout.addWidget(QLabel("STATUS: LOCKED"))
@@ -183,7 +180,7 @@ class LoginWindow(BaseWindow):
 
     def login(self) -> None:
         try:
-            user = authenticate(self.identifier.text().strip(), self.password.text(), self.mysql_password.text())
+            user = authenticate(self.identifier.text().strip(), self.password.text())
         except Exception as exc:
             QMessageBox.critical(self, "Database Error", str(exc))
             return
@@ -370,7 +367,7 @@ class FacultyWindow(BaseWindow):
         self.mark_input.setPlaceholderText("MARKS 0-100")
         save = QPushButton("SAVE MARK")
         save.clicked.connect(self.save_mark)
-        bulk = QPushButton("BULK UPDATE TABLE")
+        bulk = QPushButton("SAVE SUBJECT MARKS")
         bulk.clicked.connect(self.bulk_update)
         self.subject_combo.currentTextChanged.connect(self.load_roster)
         right_layout.addWidget(self.student_label)
@@ -421,6 +418,7 @@ class FacultyWindow(BaseWindow):
         )
         self.load_table(self.roster_table, ["ID", "Student", "PRN", "Marks"], rows)
         self.roster_table.setColumnHidden(0, True)
+        self.tabs.setCurrentWidget(self.roster_table)
 
     def load_table(self, table, headers, rows):
         table.setColumnCount(len(headers))
@@ -428,7 +426,10 @@ class FacultyWindow(BaseWindow):
         table.setRowCount(len(rows))
         for r, row in enumerate(rows):
             for c, value in enumerate(row):
-                table.setItem(r, c, QTableWidgetItem("" if value is None else str(value)))
+                item = QTableWidgetItem("" if value is None else str(value))
+                if table is self.roster_table and c in {0, 1, 2}:
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                table.setItem(r, c, item)
         table.resizeColumnsToContents()
 
     def save_mark(self):
@@ -457,7 +458,7 @@ class FacultyWindow(BaseWindow):
             if sid and marks and marks.text().strip():
                 self.upsert_mark(int(sid.text()), subject, float(marks.text()))
         self.load_roster(subject)
-        QMessageBox.information(self, "Bulk Update", "Subject marks updated.")
+        QMessageBox.information(self, "Subject Marks", "Subject marks updated.")
 
     def logout(self):
         self.on_logout()

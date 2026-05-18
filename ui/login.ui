@@ -12,7 +12,7 @@
        <item><widget class="QLabel" name="appTitle"><property name="text"><string>STUDENT PERFORMANCE ANALYZER</string></property></widget></item>
        <item><widget class="QTextEdit" name="terminalOutput"><property name="readOnly"><bool>true</bool></property><property name="plainText"><string>BOOT SEQUENCE: READY
 AUTH CHANNEL: USERNAME OR PRN
-DATABASE LINK: WAITING FOR MYSQL PASSWORD</string></property></widget></item>
+DATABASE LINK: READY</string></property></widget></item>
       </layout>
      </widget>
     </item>
@@ -22,7 +22,6 @@ DATABASE LINK: WAITING FOR MYSQL PASSWORD</string></property></widget></item>
        <item><widget class="QLabel" name="profileTitle"><property name="text"><string>ACCESS TERMINAL</string></property></widget></item>
        <item><widget class="QLineEdit" name="identifierInput"><property name="placeholderText"><string>USERNAME / PRN</string></property></widget></item>
        <item><widget class="QLineEdit" name="passwordInput"><property name="echoMode"><enum>QLineEdit::EchoMode::Password</enum></property><property name="placeholderText"><string>PASSWORD</string></property></widget></item>
-       <item><widget class="QLineEdit" name="mysqlPasswordInput"><property name="echoMode"><enum>QLineEdit::EchoMode::Password</enum></property><property name="placeholderText"><string>MYSQL ROOT PASSWORD</string></property></widget></item>
        <item><widget class="QPushButton" name="loginButton"><property name="text"><string>LOGIN</string></property></widget></item>
        <item><spacer name="loginSpacer"><property name="orientation"><enum>Qt::Orientation::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>220</height></size></property></spacer></item>
        <item><widget class="QLabel" name="statusLabel"><property name="text"><string>STATUS: LOCKED</string></property></widget></item>

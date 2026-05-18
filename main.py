@@ -1,18 +1,15 @@
 import sys
 import os
-from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication, QInputDialog, QLineEdit, QMessageBox
 
+from app_paths import resource_path
 from controllers.login_controller import LoginController
-from db import ensure_db_setup
-
-
-BASE_DIR = Path(__file__).resolve().parent
+from db import ensure_db_setup, remove_demo_seed_data
 
 
 def load_stylesheet(app: QApplication) -> None:
-    qss_path = BASE_DIR / "ui" / "cyberpunk.qss"
+    qss_path = resource_path("ui", "cyberpunk.qss")
     if qss_path.exists():
         app.setStyleSheet(qss_path.read_text(encoding="utf-8"))
 
@@ -30,21 +27,26 @@ def main() -> int:
     env_pwd = os.getenv("SPA_DB_PASSWORD")
     if db_exists(env_pwd):
         # DB present, continue without prompting
+        try:
+            remove_demo_seed_data()
+        except Exception as e:
+            QMessageBox.critical(None, "Database Error", f"Error cleaning demo data: {e}")
+            return 1
         load_stylesheet(app)
     else:
-        # Prompt the user for MySQL root password via GUI so windowed exe users
-        # can provide credentials; set env var for the rest of the startup.
+        # Prompt through the GUI so windowed exe users can provide credentials.
         pwd, ok = QInputDialog.getText(None, "MySQL Password",
                                        "Enter MySQL root password to initialize the database:",
                                        QLineEdit.EchoMode.Password)
         if not (ok and pwd):
             QMessageBox.critical(None, "Database Setup Aborted",
-                                 "No MySQL password provided. Set SPA_DB_PASSWORD or run the app from a console.")
+                                 "No MySQL password provided. Set SPA_DB_PASSWORD or try again.")
             return 1
         os.environ["SPA_DB_PASSWORD"] = pwd
 
         try:
             ensure_db_setup()
+            remove_demo_seed_data()
         except Exception as e:
             QMessageBox.critical(None, "Database Error", f"Error during DB setup: {e}")
             return 1
